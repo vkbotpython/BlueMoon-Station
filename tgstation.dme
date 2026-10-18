@@ -6735,6 +6735,7 @@
 #include "modular_splurt\code\modules\surgery\organs\eyes.dm"
 #include "modular_splurt\code\modules\surgery\organs\liver.dm"
 #include "modular_splurt\code\modules\surgery\organs\lungs.dm"
+#include "modular_splurt\code\modules\surgery\organs\shadekin.dm"
 #include "modular_splurt\code\modules\surgery\organs\stomach.dm"
 #include "modular_splurt\code\modules\surgery\organs\tongue.dm"
 #include "modular_splurt\code\modules\tgs\chat_commands.dm"

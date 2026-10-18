@@ -7,8 +7,17 @@
 						"taur" = "None", "horns" = "None", "legs" = "Plantigrade", "meat_type" = "Mammalian") // BLUEMOON CHANES - убран хвост, добавленны ноги
 	allowed_limb_ids = list("mammal","aquatic","avian","shadekin")
 	override_bp_icon = DEFAULT_BODYPART_ICON_ORGANIC
-	eye_type = "shadekin"
 	species_language_holder = /datum/language_holder/shadekin // BLUEMOON ADD - язык Marish
+
+	// BLUEMOON ADD START - Shadekin: перенос механики из S.P.L.U.R.T-tg (modular_zubbers)
+	brutemod = 1.2 // хрупкие тела — компенсация за недыхание, ночное зрение и регенерацию
+	burnmod = 1.2
+	inherent_traits = list(TRAIT_NOBREATH) // в этом билде NOBREATH также убирает лёгкие и защищает от утопления
+	mutantears = /obj/item/organ/ears/shadekin // большие уши — уязвимы к громкому шуму
+	mutanteyes = /obj/item/organ/eyes/night_vision/shadekin // ночное зрение привязано к органу, как у ящеров
+	mutanttongue = /obj/item/organ/tongue/shadekin
+	mutant_brain = /obj/item/organ/brain/shadekin // регенерация в темноте живёт в мозге, как в оригинале
+	// BLUEMOON ADD END
 
 /datum/species/mammal/shadekin/on_species_gain(mob/living/carbon/C, datum/species/old_species)
 	. = ..()
