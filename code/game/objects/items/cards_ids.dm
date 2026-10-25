@@ -148,6 +148,9 @@
 /obj/item/card/emag/empty
 	uses = 0
 
+/obj/item/card/emag/oneuse
+	uses = 1
+
 /obj/item/emagrecharge
 	name = "electromagnet charging device"
 	desc = "Небольшой аккумулятор двумя лениво воткнутыми штырями. Похоже, она нужна для заряжения небольших батарей в электромагнитных устройствах и, к несчастью, без возможности нормальной зарядки."
@@ -346,6 +349,10 @@
 	if(bank_support != ID_FREE_BANK_ACCOUNT)
 		to_chat(user, "<span class='warning'>Эта ID-карта не имеет модульного банковского счета. Должно быть, устаревшая модель...</span>")
 		return
+	var/refusal = training_bank_refusal()
+	if(refusal)
+		to_chat(user, span_warning(refusal))
+		return
 	. = FALSE
 	var/datum/bank_account/old_account = registered_account
 
@@ -447,6 +454,10 @@
 		. += "У этой карты [mining_points] рудокопных очков карго; всего было заработано [mining_points_total] очков."
 	if(contraband_points)
 		. += "<span class='info'>У этой карты [contraband_points] очков Авангарда.</span>"
+	. += bank_examine(user)
+
+/obj/item/card/id/proc/bank_examine(mob/user)
+	. = list()
 	if(!bank_support || (bank_support == ID_LOCKED_BANK_ACCOUNT && !registered_account))
 		. += "<span class='info'>Эта ID-карта не имеет банковского счёта. Должно быть, устаревшая модель...</span>"
 	else if(registered_account)
@@ -1010,6 +1021,11 @@
 
 /obj/item/card/id/departmental_budget/Initialize(mapload)
 	. = ..()
+	if(is_antag_training_atom(src))
+		name = "departmental card ([department_name])"
+		desc = "Учебная карта отдела: к бюджету станции не привязана, деньги на неё не кладутся и с неё не уходят."
+		icon_state = "[lowertext(department_ID)]_budget"
+		return
 	var/datum/bank_account/B = SSeconomy.get_dep_account(department_ID)
 	if(B)
 		registered_account = B

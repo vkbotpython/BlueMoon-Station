@@ -168,6 +168,13 @@ GLOBAL_VAR_INIT(focused_tests, focused_tests())
 		instance = new type(arglist(arguments))
 	else
 		instance = new type()
+	// Моб теста без клиента иначе SSD с начала мира: в долгом прогоне автокрио удаляет его посреди теста.
+	if(isliving(instance))
+		var/mob/living/allocated_living = instance
+		allocated_living.lastclienttime = world.time
+	else if(isobserver(instance))
+		var/mob/dead/observer/allocated_ghost = instance
+		allocated_ghost.lastclienttime = world.time
 	allocated += instance
 	return instance
 
@@ -370,6 +377,10 @@ GLOBAL_VAR_INIT(focused_tests, focused_tests())
 		return
 */
 	var/wall_start = REALTIMEOFDAY
+	var/obj/docking_port/mobile/emergency/emergency_shuttle = SSshuttle.emergency
+	var/emergency_mode = emergency_shuttle?.mode
+	var/emergency_timer = emergency_shuttle?.timer
+	var/emergency_timer_length = emergency_shuttle?.last_timer_length
 	var/datum/unit_test/test = new test_path
 
 	GLOB.current_test = test
@@ -411,6 +422,12 @@ GLOBAL_VAR_INIT(focused_tests, focused_tests())
 	test_results[test_path] = list("status" = test.succeeded ? UNIT_TEST_PASSED : UNIT_TEST_FAILED, "message" = message, "name" = test_path)
 
 	qdel(test)
+	// Удалённая в тесте консоль связи или ИИ зовёт autoEvac(): на карте без своих консолей это вызов эвакуации на все следующие тесты.
+	if(emergency_shuttle && emergency_shuttle == SSshuttle.emergency && emergency_shuttle.mode != emergency_mode)
+		log_test("NOTE: [test_path] left the emergency shuttle in mode [emergency_shuttle.mode], restored [emergency_mode]")
+		emergency_shuttle.mode = emergency_mode
+		emergency_shuttle.timer = emergency_timer
+		emergency_shuttle.last_timer_length = emergency_timer_length
 	test_results[test_path]["wall"] = (REALTIMEOFDAY - wall_start) / 10
 
 /// Tests named in a list file, one type path per line: shards and focused runs reuse one compiled dmb.
